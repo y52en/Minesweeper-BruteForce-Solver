@@ -1,0 +1,25 @@
+.App {
+  text-align: center;
+}
+button {
+  font-size: calc(10px + 2vmin);
+}
+
+table,
+td,
+tr {
+  border: 2px solid;
+  margin: auto;
+}
+
+button {
+  font-size: calc(10px + 2vmin);
+}
+
+.hint {
+  background-color: greenyellow;
+}
+
+.error{
+  background-color: rgba(252, 89, 89, 0.986);
+}
