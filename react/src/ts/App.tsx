@@ -17,14 +17,16 @@ function App() {
   const [error, setError] = useState("");
   const [errorPos, setErrorPos] = useState<Pos>([-1, -1]);
   const [result, setResult] = useState<JSX.Element>(<></>);
+  const [remainMine, setRemainMine] = useState(0);
   async function onClick() {
     let hint;
     setError("");
-    const board = input_convert(input);
+    const board = input_convert(input.trim(),input.match(",") ? "," : "");
     console.log("board :>> ", board);
 
     try {
-      hint = JSON.parse(solve(JSON.stringify(board)));
+      const remain_mine = remainMine ? remainMine : -1;
+      hint = JSON.parse(solve(JSON.stringify(board),remain_mine));
       console.log(hint);
       if (!hint?.result) {
         throw hint.output;
@@ -69,6 +71,11 @@ function App() {
         {error ? <p>{error}</p> : <></>}
         <p>
           B:ブロック、M:地雷(Mine)
+          <input
+            type="number"
+            onChange={(x) => setRemainMine(Number(x.target.value))}
+            placeholder={"残りボム"}
+          />
           <button style={{ marginLeft: "5px" }} onClick={onClick}>
             実行
           </button>
@@ -100,21 +107,23 @@ function App() {
             の場合
             <br />
           </span>
-          B,1 <br />
-          1,1 <br />
+          B1 <br />
+          11 <br />
         </p>
         <p>0は特殊処理で無視されます(例えば周りに地雷があっても許可されます)</p>
-        <p>端ではない場所を総当たりする場合は、正しく判定できるよう0で上手く調整してください</p>
+        <p>
+          端ではない場所を総当たりする場合は、正しく判定できるよう0で上手く調整してください
+        </p>
       </>
     </div>
   );
 }
 
-function input_convert(s: string): board {
+function input_convert(s: string,split_str:string): board {
   const lines = s.split("\n");
   const board: board = [];
   lines.forEach((x, i) => {
-    const line = x.trim().split(",");
+    const line = x.trim().split(split_str);
     const row: number[] = [];
     line.forEach((a) => {
       a = a.trim();
@@ -154,9 +163,10 @@ function show_board(board: board, color_board: ColorBoard[]): JSX.Element {
         return (
           <tr key={i}>
             {x.map((y, j) => {
-              const className =
+              let className =
                 color_board.find((x) => x.pos[0] === i && x.pos[1] === j)
                   ?.className || "";
+              className += ` color-${y}-cell`;
               return (
                 <td key={j} className={className}>
                   {convert_to_string(y)}
